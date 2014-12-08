@@ -6,13 +6,13 @@ defmodule FIFOTest do
     assert FIFO.size(f) == 0
     f = FIFO.enqueue(f, 1) |> FIFO.enqueue("test") |> FIFO.enqueue(2)
     assert FIFO.size(f) == 3
-    assert {:ok, 1, f} = FIFO.dequeue(f)
-    assert {:ok, "test", f} = FIFO.dequeue(f)
+    assert {1, f} = FIFO.dequeue(f)
+    assert {"test", f} = FIFO.dequeue(f)
     f = FIFO.enqueue(f, :test)
     assert FIFO.to_list(f) == [2, :test]
-    assert {:ok, 2, f} = FIFO.dequeue(f)
+    assert {2, f} = FIFO.dequeue(f)
     assert {:test, f} = FIFO.dequeue!(f)
-    assert {:empty, f} = FIFO.dequeue(f)
+    assert :empty = FIFO.dequeue(f)
     assert FIFO.size(f) == 0
     assert_raise ArgumentError, fn -> FIFO.dequeue!(f) end
   end

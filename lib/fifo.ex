@@ -40,21 +40,21 @@ defmodule FIFO do
   @doc """
   Dequeues an element from `fifo`.
   
-  Returns tuple `{:ok, elem, new_fifo}` when `fifo` is not empty.
-  Returns `{:empty, fifo}` otherwise.
+  Returns tuple `{elem, new_fifo}` when `fifo` is not empty.
+  Returns `:empty` otherwise.
   """
-  @spec dequeue(FIFO.t) :: {:empty, FIFO.t} | {:ok, term, FIFO.t}
-  def dequeue(fifo = %FIFO{size: 0}) do
-    {:empty, fifo}
+  @spec dequeue(FIFO.t) :: :empty | {term, FIFO.t}
+  def dequeue(%FIFO{size: 0}) do
+    :empty
   end
 
   def dequeue(fifo = %FIFO{size: n, output: [elem | rest]}) do
-    {:ok, elem, %{fifo | size: n - 1, output: rest}}
+    {elem, %{fifo | size: n - 1, output: rest}}
   end
 
   def dequeue(fifo = %FIFO{size: n, output: [], input: input}) do
     [elem | rest] = Enum.reverse(input)
-    {:ok, elem, %{fifo | size: n - 1, output: rest, input: []}}
+    {elem, %{fifo | size: n - 1, output: rest, input: []}}
   end
 
   @doc """
@@ -66,8 +66,8 @@ defmodule FIFO do
   @spec dequeue!(FIFO.t) :: {term, FIFO.t} | no_return
   def dequeue!(fifo) do
     case dequeue(fifo) do
-      {:ok, elem, new_fifo} -> {elem, new_fifo}
-      {:empty, _fifo} ->
+      {elem, new_fifo} -> {elem, new_fifo}
+      :empty ->
         raise ArgumentError, "Attempt to dequeue from empty FIFO"
     end
   end
