@@ -90,6 +90,21 @@ defmodule FIFO do
     end
   end
 
+  defimpl Enumerable, for: FIFO do
+    def reduce(_, {:halt, acc}, _), do: {:halted, acc}
+    def reduce(fifo, {:suspend, acc}, fun), do: {:suspended, acc, &reduce(fifo, &1, fun)}
+    def reduce(fifo, {:cont, acc}, fun) do
+      case FIFO.dequeue(fifo) do
+        :empty -> {:done, acc}
+        {e, f} -> reduce(f, fun.(e, acc), fun)
+      end
+    end
+
+    def count(fifo), do: {:ok, FIFO.size(fifo)}
+
+    def member?(_, _), do: {:error, __MODULE__}
+  end
+
   defimpl Inspect, for: FIFO do
     import Inspect.Algebra
 
